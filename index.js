@@ -212,15 +212,18 @@ function processInput (text, channel, userName) {
       _append(input, channel, userName)
       break
     case 'searchplaylist':
+    case 'findplaylist':
       _searchplaylist(input, channel)
       break
     case 'searchalbum':
+    case 'findalbum':
       _searchalbum(input, channel)
       break
     case 'addplaylist':
       _addplaylist(input, channel)
       break
     case 'search':
+    case 'find':
       _search(input, channel, userName)
       break
     case 'current':
@@ -233,6 +236,7 @@ function processInput (text, channel, userName) {
       _gong(channel, userName)
       break
     case 'gongcheck':
+    case 'dongcheck':
       _gongcheck(channel, userName)
       break
     case 'vote':
@@ -322,7 +326,11 @@ function processInput (text, channel, userName) {
 
 function _slackMessage (message, id) {
   if (slack.connected) {
-    slack.sendMessage(message, id)
+    slack.sendTyping(id)
+    var time = _randomNumber(250, 2000)
+    setTimeout(function () {
+      slack.sendMessage(message, id)
+    }, time)
   } else {
     console.log(message)
   }
@@ -1254,6 +1262,10 @@ function _purgeHalfQueue (input, channel) {
   }).catch(err => {
     logger.error(err)
   })
+}
+
+function _randomNumber (min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
 // Travis.
