@@ -185,12 +185,28 @@ function processInput (text, channel, userName) {
     name = input[0].toLowerCase()
     term = input[1] ? input[1].toLowerCase() : ''
     logger.info('name: ' + name)
-    // if the name does not match the bot name lets ignore it
-    if (name !== botName.toLowerCase()) {
+
+    var channelType = _getChannelType(channel.id)
+
+    // if we are not in a one2one channel check that the bot name is added
+    if (channelType !== 'dm' && name !== botName.toLowerCase()) {
       return false
+      // if we are in a one2one channel and the botname is added
+      // we can let the user know that they don't need to say the name
+      // but continue...
+    } else if (channelType === 'dm' && name === botName.toLowerCase()) {
+      _slackMessage(userName + 'when its only us together you don\'t need to use my full name, I know your talking to me :stuck_out_tongue:', channel.id)
+      input.shift()
+      // if we are in a one2one channel and the name is not equal to the bot name
+      // we can assume it is simply a command
+    } else if (channelType === 'dm' && name !== botName.toLowerCase()) {
+      term = input[0].toLowerCase()
+    } else {
+      // otherwise we can treat it as if we are in a group channel and have found the bots name
+      // input.shift() is used to remove the bots name from the input array
+      input.shift()
     }
-    // remove bot name from the input
-    input.shift()
+
   } else {
     term = input[0].toLowerCase()
   }
@@ -238,6 +254,10 @@ function processInput (text, channel, userName) {
     case 'gongcheck':
     case 'dongcheck':
       _gongcheck(channel, userName)
+      break
+    case 'supergong':
+    case 'superdong':
+      _superdong(channel, userName)
       break
     case 'vote':
       _vote(channel, userName)
@@ -519,6 +539,11 @@ function _gong (channel, userName) {
   })
 }
 
+function _superdong (channel, userName) {
+  logger.info('_superdong...')
+  _slackMessage(userName + ' Did you just try to super gong? You know that\'s not a thing right?', channel.id)
+}
+
 function _vote (channel, userName) {
   logger.info('_vote...')
   _currentTrackTitle(channel, function (err, track) {
@@ -609,6 +634,7 @@ function _help (input, channel) {
     '`append` _text_ : Append a song to the previous playlist and start playing the same list again.\n' +
     '`gong` : The current track is bad! ' + gongLimit + ' gongs will skip the track\n' +
     '`gongcheck` : How many gong votes there are currently, as well as who has gonged.\n' +
+    '`supergong` : If you really hate this song, use a super gong to force to the next track\n' +
     '`vote` : The current track is great! ' + voteLimit + ' votes will prevent the track from being gonged\n' +
     '`volume` : view current volume\n' +
     '`list` : list current queue\n'
@@ -628,7 +654,7 @@ function _help (input, channel) {
       '`blacklist add @username` : add `@username` to the blacklist\n' +
       '`blacklist del @username` : remove `@username` from the blacklist\n'
   }
-  message += ' ===  ===  === = ZenMusic@GitHub  ===  ===  === ==\n'
+  message += ' ===  ===  ===  ZenMusic@GitHub  ===  ===  === \n'
   _slackMessage(message, channel.id)
 }
 
@@ -1266,6 +1292,36 @@ function _purgeHalfQueue (input, channel) {
 
 function _randomNumber (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+/**
+ * Returns the type of channel
+ * public = public channel
+ * dm = one to one chat
+ * private = private channel
+ *
+ * @param id
+ * @returns {string}
+ * @private
+ */
+function _getChannelType (id) {
+  var output = ''
+  var firstChar = id.charAt(0).toLowerCase()
+
+  switch (firstChar) {
+    case 'c':
+      output = 'public'
+      break
+    case 'd':
+      output = 'dm'
+      break
+    case 'g':
+      output = 'private'
+      break
+  }
+
+  // return the status
+  return output
 }
 
 // Travis.
