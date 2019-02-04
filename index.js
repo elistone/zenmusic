@@ -309,9 +309,11 @@ function processInput (text, channel, userName) {
         break
       case 'remove':
         _removeFromQueue(input[1], channel)
+        break
       case 'thanos':
       case 'snap':
         _purgeHalfQueue(input, channel)
+        break
       default:
         break
     }
