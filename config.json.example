@@ -1,4 +1,5 @@
 {
+    "botName": "zenmusic",
     "adminChannel" : "music-admin",
     "standardChannel" : "music",
     "gongLimit": 3,
@@ -10,5 +11,6 @@
     "blacklist" : "@justin.bieber, @one.direction",
     "spotifyClientId": "",
     "spotifyClientSecret": "",
-    "logLevel": "info"
+    "logLevel": "info",
+    "requireName": false
 }
