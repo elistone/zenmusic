@@ -1,12 +1,13 @@
 {
   "name": "zenmusic",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Zen sonos project",
   "main": "index.js",
   "scripts": {
     "pretest": "if [ ! -f 'config.json' ]; then cp config.json.example config.json; fi",
     "test": "mocha --reporter spec",
-    "cover": "npm run pretest; node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --opts test/mocha.opts test/* -R spec"
+    "cover": "npm run pretest; node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --opts test/mocha.opts test/* -R spec",
+    "run": "node index.js"
   },
   "keywords": [
     "sonos",
@@ -17,7 +18,7 @@
   ],
   "repository": {
     "type:": "git",
-    "url": "git@github.com:htilly/zenmusic.git"
+    "url": "git@github.com:elistone/zenmusic.git"
   },
   "devDependencies": {
     "chai": "^3.5.0",
