@@ -11,6 +11,8 @@
     "blacklist" : "@justin.bieber, @one.direction",
     "spotifyClientId": "",
     "spotifyClientSecret": "",
+    "dialogflowProjectId": "",
+    "enableChat": false,
     "logLevel": "info",
     "requireName": false
 }

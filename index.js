@@ -3,6 +3,8 @@ const winston = require('winston')
 const decode = require('unescape')
 const Spotify = require('./spotify')
 const utils = require('./utils')
+const dialogflow = require('dialogflow')
+const uuid = require('uuid')
 
 config.argv()
   .env()
@@ -17,6 +19,7 @@ config.argv()
     'market': 'US',
     'blacklist': [],
     'searchLimit': 7,
+    'enableChat': false,
     'logLevel': 'info',
     'requireName': false
   })
@@ -35,6 +38,8 @@ const clientSecret = config.get('spotifyClientSecret')
 const searchLimit = config.get('searchLimit')
 const logLevel = config.get('logLevel')
 const requireName = config.get('requireName')
+const dialogflowProjectId = config.get('dialogflowProjectId')
+const enableChat = config.get('enableChat')
 
 let blacklist = config.get('blacklist')
 if (!Array.isArray(blacklist)) {
@@ -206,7 +211,6 @@ function processInput (text, channel, userName) {
       // input.shift() is used to remove the bots name from the input array
       input.shift()
     }
-
   } else {
     term = input[0].toLowerCase()
   }
@@ -339,8 +343,16 @@ function processInput (text, channel, userName) {
         _purgeHalfQueue(input, channel)
         break
       default:
+        matched = false
         break
     }
+  }
+
+  // if chat is enabled and we still have no matches
+  // lets try using dialogflow
+  if (enableChat && !matched) {
+    logger.info('trying to speak...')
+    _speak(input, channel, userName)
   }
 }
 
@@ -530,7 +542,7 @@ function _gong (channel, userName) {
       _slackMessage(randomMessage + ' This is GONG ' + gongCounter + '/' + gongLimit + ' for ' + track, channel.id)
       if (gongCounter >= gongLimit) {
         _slackMessage('The music got GONGED!!', channel.id)
-        //_gongplay('play', channel)
+        // _gongplay('play', channel.id)
         _nextTrack(channel, true)
         gongCounter = 0
         gongScore = {}
@@ -737,7 +749,7 @@ function _shuffle (input, channel, byPassChannelValidation) {
   })
 }
 
-function _gongplay (input, channel) {
+function _gongplay (input, channel, userName) {
   sonos.queueNext('spotify:track:6Yy5Pr0KvTnAaxDBBISSDe').then(success => {
     logger.info('GongPlay!!')
   }).catch(err => { logger.error('Error occurred ' + err) })
@@ -1288,6 +1300,43 @@ function _purgeHalfQueue (input, channel) {
   }).catch(err => {
     logger.error(err)
   })
+}
+
+async function _speak (input, channel, userName) {
+  // A unique identifier for the given session
+  const sessionId = uuid.v4()
+
+  // Create a new session
+  const sessionClient = new dialogflow.SessionsClient()
+  const sessionPath = sessionClient.sessionPath(dialogflowProjectId, sessionId)
+
+  logger.info(`${input}`)
+
+  // The text query request.
+  const request = {
+    session: sessionPath,
+    queryInput: {
+      text: {
+        // The query to send to the dialogflow agent
+        text: input.join(' '),
+        // The language used by the client (en-US)
+        languageCode: 'en-US'
+      }
+    }
+  }
+
+  // Send request and log result
+  const responses = await sessionClient.detectIntent(request)
+  logger.info('Detected intent')
+  const result = responses[0].queryResult
+  logger.info(`  Query: ${result.queryText}`)
+  logger.info(`  Response: ${result.fulfillmentText}`)
+  _slackMessage(result.fulfillmentText, channel.id)
+  if (result.intent) {
+    logger.info(`  Intent: ${result.intent.displayName}`)
+  } else {
+    logger.info(`  No intent matched.`)
+  }
 }
 
 function _randomNumber (min, max) {
