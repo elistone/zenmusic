@@ -5,4 +5,3 @@ package-lock.json
 *.log
 .idea
 index.old.js
-src/spotify.old.js

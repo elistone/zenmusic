@@ -1,18 +1,3 @@
 {
-    "botName": "zenmusic",
-    "adminChannel" : "music-admin",
-    "standardChannel" : "music",
-    "gongLimit": 3,
-    "voteLimit": 6,
-    "sonos" : "IP_TO_SONOS",
-    "token" : "SLACK:TOKEN",
-    "market" : "US",
-    "maxVolume" : 75,
-    "blacklist" : "@justin.bieber, @one.direction",
-    "spotifyClientId": "",
-    "spotifyClientSecret": "",
-    "dialogflowProjectId": "",
-    "enableChat": false,
-    "logLevel": "info",
-    "requireName": false
+    "slackAPIToken" : "ADD_SLACK_API_TOKEN"
 }
