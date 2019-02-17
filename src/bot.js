@@ -51,7 +51,6 @@ class Bot {
    * @param text
    * @param user
    * @param channel
-   * @private
    */
   incomingMessage (text, user, channel) {
     let sk = new Slack(text, user, channel)
@@ -67,7 +66,6 @@ class Bot {
    *
    * @param text
    * @param conversationId
-   * @private
    */
   sendSlackMessage (text, conversationId) {
     if (!this.isTest) {
