@@ -15,7 +15,7 @@ class Bot {
   constructor (isTest = false) {
     config.argv()
       .env()
-      .file({ file: './config.json' })
+      .file({ file: './config/config.json' })
 
     this.slackAPIToken = config.get('slackAPIToken')
     this.isTest = isTest
