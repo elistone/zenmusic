@@ -11,7 +11,9 @@ describe('#command_add', function () {
   it('should be able to detect add command and extract artist and song', function () {
     const strings = [
       'add Hey Jude by The Beatles',
-      'add the song Hey Jude by The Beatles'
+      'add the song Hey Jude by The Beatles',
+      'add Hey Jude - The Beatles',
+      'add The Beatles song Hey Jude'
     ]
 
     strings.forEach(function (sentence) {
